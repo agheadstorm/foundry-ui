@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { Div } from '../../htmlElements';
+import { useTheme } from '../../context';
 import variants from '../../enums/variants';
 import Dropdown, { objectOrArrayToDropdownOptions } from '../Dropdown';
 import Card from '../Card';
@@ -53,13 +54,25 @@ const DatesContainer = styled(Div)`
   grid-template-columns: repeat(7, 1fr);
 `;
 
-const DateItem = styled(Div)`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  width: 2rem;
-  height: 2rem;
+export type DateItemProps = {
+  onClick?: (evt: MouseEvent) => void;
+};
+
+export const DateItem = styled(Div)`
+  ${({ onClick }: DateItemProps) => 
+  {
+    const { colors } = useTheme();
+
+    return `
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 2rem;
+    height: 2rem;
+    `
+  }
+  }
 `;
 
 const StyledValueContainer = styled(Dropdown.ValueContainer)`
@@ -75,6 +88,10 @@ export const isLeapYear = (date: Date): boolean => {
   return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 };
 
+const dateOnClick = (day: number) => {
+  console.log("date clicked", day);
+};
+
 export type DatePickerProps = {
   selectedDate?: Date; // the currently selected date
   onSelect?: () => void; // onClick of a date in the valid date range
@@ -82,9 +99,10 @@ export type DatePickerProps = {
   initialYearView?: number; // which year view is open on mount (default is the current year)
 };
 
+
+
 // TODO: Render the current month/year as dropdowns
 // TODO: Render a month of days in a grid with blanks
-
 const DatePicker = ({
   initialMonthView = today.getMonth(),
   initialYearView = today.getFullYear(),
@@ -93,7 +111,8 @@ const DatePicker = ({
   const [yearView, setYearView] = useState(initialYearView);
 
   const dateNumbers = [];
-  for (let i = 1; i <= daysByMonth[monthView]; i++) {
+
+  for (let i = 1; i <= daysByMonth[parseInt(monthView)]; i++) {
     dateNumbers.push(i);
   }
 
@@ -105,21 +124,25 @@ const DatePicker = ({
           variant={variants.text}
           options={monthOptions}
           values={[monthView]}
-          onSelect={months => setMonthView(months[0])}
+          onSelect={months => months?.length && setMonthView(`${months[0]}`)}
           StyledValueContainer={StyledValueContainer}
           StyledOptionsContainer={StyledOptionsContainer}
         />
         <Dropdown
           variant={variants.text}
           placeholder={`${yearView}`}
-          onSelect={year => setYearView(year)}
+          onSelect={year => year && setYearView(parseInt(year,10))}
           StyledValueContainer={StyledValueContainer}
           StyledOptionsContainer={StyledOptionsContainer}
         />
       </HeaderRow>
       <DatesContainer>
         {dateNumbers.map(num => (
-          <DateItem>{num}</DateItem>
+          <DateItem
+          onclick={dateOnClick(num)}
+          >
+            {num}
+          </DateItem>
         ))}
       </DatesContainer>
     </Card>

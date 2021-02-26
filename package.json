@@ -8,6 +8,7 @@
     "lerna": "^3.20.2"
   },
   "scripts": {
+    "start-react": "cd packages/foundry-react-ui && yarn start",
     "build-react": "cd packages/foundry-react-ui && yarn run bundle",
     "prepare": "cd packages/foundry-react-ui && yarn install",
     "test-react": "cd packages/foundry-react-ui && yarn test",
